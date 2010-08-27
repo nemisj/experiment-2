@@ -1,0 +1,5 @@
+TODO :
+	Implement centrate button
+	Draw axis in the middle
+	Render more boxes 
+	Fix z index when it goes > -1
