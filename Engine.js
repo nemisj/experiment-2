@@ -1,7 +1,8 @@
 UP_ARROW    = 38;
 DOWN_ARROW  = 40;
 LEFT_ARROW  = 37;
-RIGHT_ARROW = 39
+RIGHT_ARROW = 39;
+SPACE       = 32;
 
 Engine = function( canvas ) {
 
@@ -12,6 +13,9 @@ Engine = function( canvas ) {
         y: 0,
         z: 0
     };
+
+	var onground = true;
+	var jump     = false;
 
     var ctx = canvas.getContext("2d");
 
@@ -46,11 +50,27 @@ Engine = function( canvas ) {
                 thing.set( 'z', z - camera.z );
                 thing.set( 'x', x - camera.x );
 
+				if (jump) {
+					var y = thing.get('y');
+
+					var value = camera.y--;
+
+					if (value > 0) {
+						thing.set( 'y',   y + 7 );
+					} else if (value > -10) {
+						thing.set( 'y',   y - 7);
+					} else {
+						camera.y = 0;
+						jump     = false;
+						onground = true;
+					}
+				}
+
                 thing.paint( ctx );
             }
 
 			ctx.fillRect( 0, 0, 2 ,2 );
-        }, 50 );
+        }, 33 );
     }
 
     this.stop = function() {
@@ -79,6 +99,9 @@ Engine = function( canvas ) {
             case RIGHT_ARROW :
                 camera.x = 0;
             break;
+
+			case SPACE :
+			break;
 		}
         e.preventDefault();
 	}
@@ -104,6 +127,14 @@ Engine = function( canvas ) {
             case RIGHT_ARROW :
                 camera.x++;
             break;
+
+			case SPACE :
+				if (onground) {
+					jump     = true;
+					onground = false;
+					camera.y = 10;
+				}
+			break;
         }
 
         e.preventDefault();
