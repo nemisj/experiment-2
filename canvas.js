@@ -175,6 +175,8 @@ window.onload = function() {
     // paint();
 
     engine = new Engine(document.getElementById("canvas"));
+    // engine.add( new Box() );
     engine.add( new Box() );
+    // engine.add( new Floor() );
     engine.start();
 }

@@ -1,8 +1,16 @@
 
 <html>
 	<head>
+		<script>
+			if (typeof(console) == "undefined") {
+				console = {
+					debug :function(){}
+				}
+			}		
+		</script>
 		<script src="Box.js"></script>
 		<script src="Engine.js"></script>
+		<script src="Floor.js"></script>
 		<script src="canvas.js"></script>
 		<script src="debug.js"></script>
 	</head>
