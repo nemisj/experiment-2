@@ -6,7 +6,8 @@ SPACE       = 32;
 
 Engine = function( canvas ) {
 
-    var things = [];
+    var things  = [];
+    var actions = [];
     
     var camera = {
         x: 0,
@@ -31,45 +32,121 @@ Engine = function( canvas ) {
 
     this.add = function(thing) {
         things.push( thing );
-        var y = thing.get('y');
-//        thing.set('y', 0 );
+    }
+
+    var action = 0;
+
+    var startZ = -200;
+
+    var setCoords = function( obj ){
+
+        var x = obj.x;
+        var y = obj.y;
+        var z = obj.z;
+
+        var points = obj._points;
+
+        var offsetx = x - points[0].x;
+        var offsety = y - points[0].y;
+        var offsetz = z - points[0].z;
+
+        z = -200 + z
+
+        for (var i=0; i < points.length; i++ ){
+
+            var point = points[i];
+
+            point.x = point.x + offsetx;
+            point.y = point.y + offsety;
+            point.z = point.z + offsetz;
+        }
+    }
+
+    var do_camera = function( obj, camera ) {
+
+        var points = obj._points;
+        for (var i=0;i<points.length;i++ ){
+            var point = points[i];
+
+            var x = point.x - camera.x;
+            var y = point.y - camera.y;
+            var z = point.z - camera.z;
+
+            calculate2D( x, y, z, point );
+        }
     }
 
     this.start = function() {
 
-        this.id = setInterval(function(){
-            ctx.clearRect( centerX * -1 ,centerY * -1, 700, 700 );
+        for (var i=0,l=things.length;i<l;i++) {
             
-            for (var i=0,l=things.length;i<l;i++) {
-                //xxx: take into account z index of objects
-                var thing = things[i];
+            var thing = things[i];
+            var x =  ~~(Math.random() * 80  );
+                x = (Math.random() > 0.5) ? x * -1 : x;
 
-                var x = thing.get('x');
-                var z = thing.get('z');
+            thing.x = x;
+            thing.y = -40;
+            thing.z = ~~(Math.random() * 100 );
 
-                thing.set( 'z', z - camera.z );
-                thing.set( 'x', x - camera.x );
+            setCoords( thing );
+            do_camera( thing, camera );
 
-				if (jump) {
-					var y = thing.get('y');
+            thing.paint( ctx );
+        }
 
-					var value = camera.y--;
+        var flag = false;
+         this.id = setInterval(function(){
 
-					if (value > 0) {
-						thing.set( 'y',   y + 7 );
-					} else if (value > -10) {
-						thing.set( 'y',   y - 7);
-					} else {
-						camera.y = 0;
-						jump     = false;
-						onground = true;
-					}
-				}
-
-                thing.paint( ctx );
+            if (action & 1) {
+                camera.z++;
+                console.debug('Doing up',camera.z);
             }
 
-			ctx.fillRect( 0, 0, 2 ,2 );
+            if (action & 2) {
+                camera.z--;
+                console.debug('Doing down',camera.z);
+            }
+
+            if (action & 4) {
+                camera.x--;
+                console.debug('Doing left',camera.x);
+            }
+
+            if (action & 8) {
+                camera.x++;
+                console.debug('Doing right',camera.x);
+            }
+
+            if (action) {
+
+                ctx.clearRect( centerX * -1 ,centerY * -1, 700, 700 );
+
+                for (var i=0,l=things.length;i<l;i++) {
+
+                    var thing = things[i];
+                    do_camera( thing, camera );
+
+                    if (jump) {
+                        var y = thing.get('y');
+
+                        var value = camera.y--;
+
+                        if (value > 0) {
+                            thing.set( 'y',   y + 7 );
+                        } else if (value > -10) {
+                            thing.set( 'y',   y - 7);
+                        } else {
+                            camera.y = 0;
+                            jump     = false;
+                            onground = true;
+                        }
+                    }
+
+                    thing.paint( ctx );
+                }
+                ctx.fillRect( 0, 0, 2, 2 );
+            }
+
         }, 33 );
     }
 
@@ -77,55 +154,63 @@ Engine = function( canvas ) {
         clearInterval( this.id ); 
     }
 
-
 	canvas.onkeyup   = function(e) {
-        console.debug('onkeydown:',e);
+        // console.debug('onkeydown:',e);
 
         var code = e.keyCode;
 
         switch (code) {
             case UP_ARROW: 
-                camera.z = 0;
+                // camera.z = 0;
+                action ^= 1;
             break;
 
             case DOWN_ARROW : 
-                camera.z = 0;
+                // camera.z = 0;
+                action ^= 2;
             break;
 
             case LEFT_ARROW :
-                camera.x = 0;
+                // camera.x = 0;
+                action ^= 4;
             break;
 
             case RIGHT_ARROW :
-                camera.x = 0;
+                // camera.x = 0;
+                action ^= 8;
             break;
 
 			case SPACE :
 			break;
 		}
+
         e.preventDefault();
 	}
 
+    canvas.onkeyperss = function(e) {
+        e.preventDefault();    
+    }
+
     canvas.onkeydown = function(e) {
-        console.debug('onkeydown:',e);
+        //console.debug('onkeydown:',e);
 
         var code = e.keyCode;
 
         switch (code) {
             case UP_ARROW: 
-                camera.z++;
+                action |= 1;
             break;
 
             case DOWN_ARROW : 
-                camera.z--;
+                action |= 2;
             break;
 
             case LEFT_ARROW :
-                camera.x--;
+                action |= 4;
             break;
 
             case RIGHT_ARROW :
-                camera.x++;
+                action |= 8;
             break;
 
 			case SPACE :
