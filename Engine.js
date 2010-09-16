@@ -45,6 +45,9 @@ Engine = function( canvas ) {
         var z = obj.z;
 
         var points = obj._points;
+        if (!points.length) {
+            return;
+        }
 
         var offsetx = x - points[0].x;
         var offsety = y - points[0].y;
@@ -119,7 +122,14 @@ Engine = function( canvas ) {
 
             if (action) {
 
-                ctx.clearRect( centerX * -1 ,centerY * -1, 700, 700 );
+
+                ctx.clearRect( -centerX  , -centerY , 700, 700 );
+
+                ctx.strokeStyle = "#000";
+                ctx.beginPath();
+                ctx.moveTo(-centerX,0);
+                ctx.lineTo(centerX,0);
+                ctx.stroke();
 
                 for (var i=0,l=things.length;i<l;i++) {
 
