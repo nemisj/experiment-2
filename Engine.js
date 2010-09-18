@@ -1,3 +1,18 @@
+var cameraView = {
+    x        : 0,
+    y        : 0,
+    z        : 0,
+    rotation : 0
+};
+
+var focalLength = 300;
+var step = 0;
+
+FORWARD  = 1;
+BACKWARD = 2;
+LEFT     = 4;
+RIGHT    = 8;
+
 UP_ARROW    = 38;
 DOWN_ARROW  = 40;
 LEFT_ARROW  = 37;
@@ -9,12 +24,6 @@ Engine = function( canvas ) {
     var things  = [];
     var actions = [];
     
-    var camera = {
-        x: 0,
-        y: 0,
-        z: 0
-    };
-
 	var onground = true;
 	var jump     = false;
 
@@ -92,7 +101,7 @@ Engine = function( canvas ) {
             thing.z = ~~(Math.random() * 100 );
 
             setCoords( thing );
-            do_camera( thing, camera );
+            do_camera( thing, cameraView );
 
             thing.paint( ctx );
         }
@@ -100,28 +109,32 @@ Engine = function( canvas ) {
         var flag = false;
          this.id = setInterval(function(){
 
-            if (action & 1) {
-                camera.z++;
-                console.debug('Doing up',camera.z);
+            var movement = 0;
+
+            if (action & FORWARD) {
+                movement += 10;
+//                console.debug('Doing forward');
             }
 
-            if (action & 2) {
-                camera.z--;
-                console.debug('Doing down',camera.z);
+            if (action & BACKWARD) {
+                movement -= 10;
+//                console.debug('Doing down');
             }
 
-            if (action & 4) {
-                camera.x--;
-                console.debug('Doing left',camera.x);
+            if (action & LEFT) {
+                cameraView.rotation -= .05;
+//                console.debug('Doing rotate left');
             }
 
-            if (action & 8) {
-                camera.x++;
-                console.debug('Doing right',camera.x);
+            if (action & RIGHT) {
+                cameraView.rotation += .05;
+//                console.debug('Doing rotate right');
             }
 
             if (action) {
 
+                cameraView.x += Math.sin( cameraView.rotation ) * movement;
+                cameraView.z += Math.cos( cameraView.rotation ) * movement;
 
                 ctx.clearRect( -centerX  , -centerY , 700, 700 );
 
@@ -134,19 +147,19 @@ Engine = function( canvas ) {
                 for (var i=0,l=things.length;i<l;i++) {
 
                     var thing = things[i];
-                    do_camera( thing, camera );
+                    do_camera( thing, cameraView );
 
                     if (jump) {
                         var y = thing.get('y');
 
-                        var value = camera.y--;
+                        var value = cameraView.y--;
 
                         if (value > 0) {
                             thing.set( 'y',   y + 7 );
                         } else if (value > -10) {
                             thing.set( 'y',   y - 7);
                         } else {
-                            camera.y = 0;
+                            cameraView.y = 0;
                             jump     = false;
                             onground = true;
                         }
@@ -171,23 +184,19 @@ Engine = function( canvas ) {
 
         switch (code) {
             case UP_ARROW: 
-                // camera.z = 0;
-                action ^= 1;
+                action ^= FORWARD;
             break;
 
             case DOWN_ARROW : 
-                // camera.z = 0;
-                action ^= 2;
+                action ^= BACKWARD;
             break;
 
             case LEFT_ARROW :
-                // camera.x = 0;
-                action ^= 4;
+                action ^= LEFT;
             break;
 
             case RIGHT_ARROW :
-                // camera.x = 0;
-                action ^= 8;
+                action ^= RIGHT;
             break;
 
 			case SPACE :
@@ -208,26 +217,26 @@ Engine = function( canvas ) {
 
         switch (code) {
             case UP_ARROW: 
-                action |= 1;
+                action |= FORWARD;
             break;
 
             case DOWN_ARROW : 
-                action |= 2;
+                action |= BACKWARD;
             break;
 
             case LEFT_ARROW :
-                action |= 4;
+                action |= LEFT;
             break;
 
             case RIGHT_ARROW :
-                action |= 8;
+                action |= RIGHT;
             break;
 
 			case SPACE :
 				if (onground) {
 					jump     = true;
 					onground = false;
-					camera.y = 10;
+					cameraView.y = 10;
 				}
 			break;
         }
@@ -236,6 +245,6 @@ Engine = function( canvas ) {
     }
 
     this.getCamera = function() {
-        return camera;
+        return cameraView;
     }
 }

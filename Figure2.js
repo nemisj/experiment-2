@@ -1,12 +1,6 @@
 
-var cameraView = {};
-cameraView.x = 0;
-cameraView.y = 0;
-cameraView.z = 0;
-cameraView.rotation = 0;
-focalLength = 300;
 
-displayFigure = function(context){
+displayFigure = function( context ){
     var x = this.x - cameraView.x;
     var z = this.z - cameraView.z;
     var y = this.y;
@@ -36,12 +30,14 @@ displayFigure = function(context){
 
         var nr = this.id;
         return function() {
+            context.save();
             var rx = x - (width / 2),
                 ry = y - (height / 2)
             context.drawImage( img, rx, ry, width, height ); 
-            context.save();
+
             context.fillStyle = "#FF001E";
             context.fillText( nr, x, y );
+
             context.restore();
         }
 
@@ -75,29 +71,10 @@ for (i=0; i<8; i++){
     attachedObj.height = 142.75;
 }
 
-var v = null;
 Figure = function() {
     this._points = [];
     this.paint = function( context ){
 
-        var camera = engine.getCamera();
-        cameraView.rotation = camera.x / 10;
-
-        var movement = 0;
-        if (v!=null) {
-            var n = camera.z;
-            if (n > v) {
-                movement += 10;
-            } else if (n < v) {
-                movement -= 10;
-            }
-            v = n;
-        } else {
-            v = camera.z;
-        }
-
-        cameraView.x += Math.sin( cameraView.rotation ) * movement;
-        cameraView.z += Math.cos( cameraView.rotation ) * movement;
 
         var renders = [];
 
