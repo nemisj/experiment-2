@@ -247,4 +247,28 @@ Engine = function( canvas ) {
     this.getCamera = function() {
         return cameraView;
     }
+
+    this.translatePoint = function(point) {
+        var x = point.x - cameraView.x;
+        var z = point.z - cameraView.z;
+        var y = point.y;
+
+        var angle  = Math.atan2( z, x );
+        var radius = Math.sqrt( x * x + z * z );
+
+        x = Math.cos(angle + cameraView.rotation) * radius;
+        z = Math.sin(angle + cameraView.rotation) * radius;
+
+        var scaleRatio = focalLength/(focalLength + z);
+        x = x * scaleRatio;
+        y = y * scaleRatio;
+
+        return {
+            x       : x,
+            y       : y,
+            z       : z,
+            visible : z > 0,
+            scale   : 100 * scaleRatio
+        }
+    }
 }

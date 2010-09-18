@@ -1,36 +1,31 @@
 
 
 displayFigure = function( context ){
-    var x = this.x - cameraView.x;
-    var z = this.z - cameraView.z;
-    var y = this.y;
 
-    var angle  = Math.atan2( z, x );
-    var radius = Math.sqrt( x * x + z * z );
+    var point = engine.translatePoint({
+        x : this.x,
+        y : this.y,
+        z : this.z
+    });
 
-    x = Math.cos(angle + cameraView.rotation) * radius;
-    z = Math.sin(angle + cameraView.rotation) * radius;
+    var visible = this._visible = point.visible;
 
-    if (z > 0){
-        if (!this._visible) this._visible = true;
-        var scaleRatio = focalLength/(focalLength + z);
-        this._x = x * scaleRatio;
-        this._y = y * scaleRatio;
-        this._xscale = this._yscale = 100 * scaleRatio;
+    if (visible) {
 
-        var x     = this._x, 
-            y     = this._y, 
-            scale = this._xscale,
-            img   = this.img;
-
-        var width  = this.width / 100 * scale;  //120 / 100 * scale;
-        var height = this.height / 100 * scale; //142.75 / 100 * scale;
+        var x      = this._x = point.x,
+            y      = this._y = point.y,
+            scale  = this._xscale = this._yscale = point.scale,
+            img    = this.img, 
+            width  = this.width / 100 * scale,  //120 / 100 * scale;
+            height = this.height / 100 * scale, //142.75 / 100 * scale;
+            nr     = this.id,
+            z      = point.z;
 
         this._z = ~~(-z);
 
-        var nr = this.id;
         return function() {
             context.save();
+
             var rx = x - (width / 2),
                 ry = y - (height / 2)
             context.drawImage( img, rx, ry, width, height ); 
@@ -42,7 +37,6 @@ displayFigure = function( context ){
         }
 
     }else{
-        this._visible = false;
         return function() {
         }
     }
