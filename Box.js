@@ -1,15 +1,5 @@
 // Box from tutorial : http://www.kirupa.com/developer/actionscript/3dwireframe.htm
 
-var focalLength = 300;
-
-function calculate2D(x, y, z, map) {
-
-    var scaleRatio  = focalLength / ( focalLength +  (z - 200) );
-
-    map._x = x * scaleRatio;
-    map._y = y * scaleRatio;
-}
-
 function D3DPoint( x, y, z){
 
     var point = {
@@ -23,29 +13,41 @@ function D3DPoint( x, y, z){
 
 Box = function() {
 
-    var pointsArray = this._points = [
-        D3DPoint(-20, -40, -20),
-        D3DPoint(20, -40, -20),
-        D3DPoint(20, -40, 20),
-        D3DPoint(-20, -40, 20),
-        D3DPoint(-20, 80, -20),
-        D3DPoint(20, 80, -20),
-        D3DPoint(20, 80, 20),
-        D3DPoint(-20, 80, 20)
+    this._points = [];
+
+    var pointsArray = [
+        D3DPoint(-200, 0, -20),
+        D3DPoint(-160, 0, -20),
+        D3DPoint(-160, 0, 20),
+        D3DPoint(-200, 0, 20),
+        D3DPoint(-200, 71, -20),
+        D3DPoint(-160, 71, -20),
+        D3DPoint(-160, 71, 20),
+        D3DPoint(-200, 71, 20)
     ];
 
     this.paint = function( context ) {
-//        console.debug('Box.paint');
 
         var points = pointsArray;
+        for (var i=0; i < points.length; i++){
+            var point = points[i];
+
+            var result = engine.translatePoint( point );
+
+            point._x  = result.x;
+            point._y  = result.y;
+            
+            if (!result.visible) {
+                return;
+            }
+
+        }
 
         context.save();
 
         context.strokeStyle = "#FF0000";// (2,0xFF0000, 100);
 
         context.beginPath();
-
-        // context = DebugContext( context );
 
         // top
         context.moveTo(points[0]._x, points[0]._y);
